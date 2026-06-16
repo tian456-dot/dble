@@ -18,7 +18,9 @@ import com.actiontech.dble.net.ConnectionException;
 import com.actiontech.dble.net.connection.BackendConnection;
 import com.actiontech.dble.net.mysql.*;
 import com.actiontech.dble.net.service.*;
+import com.actiontech.dble.net.ssl.GMSslWrapper;
 import com.actiontech.dble.net.ssl.OpenSSLWrapper;
+import com.actiontech.dble.net.ssl.SSLWrapperRegistry;
 import com.actiontech.dble.services.BackendService;
 import com.actiontech.dble.services.factorys.BusinessServiceFactory;
 import com.actiontech.dble.services.mysqlsharding.MySQLResponseService;
@@ -168,15 +170,37 @@ public class MySQLBackAuthService extends BackendService implements AuthService 
             if (connection.isSupportSSL()) {
                 //todo:move config in dbinstance scope
                 sendSSLRequestPacket(++data[3]);
-                connection.sendSSLHandShake(OpenSSLWrapper.PROTOCOL);
+                int sslProtocol = resolveBackSSLProtocol();
+                try {
+                    connection.sendSSLHandShake(sslProtocol);
+                } catch (RuntimeException e) {
+                    throw new RuntimeException("Backend SSL handshake initialization failed with protocol " + SystemConfig.getInstance().getBackSSLProtocol(), e);
+                }
             } else {
                 sendAuthPacket(++data[3]);
             }
 
-        } catch (IllegalArgumentException | NoSuchAlgorithmException e) {
+        } catch (IllegalArgumentException e) {
             String authPluginErrorMessage = "Client don't support the password plugin " + serverPlugin + ",please check the default auth Plugin";
             throw new RuntimeException(authPluginErrorMessage);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Build backend auth packet failed", e);
         }
+    }
+
+    private int resolveBackSSLProtocol() {
+        String configuredProtocol = SystemConfig.getInstance().getBackSSLProtocol();
+        final int protocol;
+        if (SystemConfig.BACK_SSL_PROTOCOL_GMSSL.equals(configuredProtocol)) {
+            protocol = GMSslWrapper.PROTOCOL;
+        } else {
+            protocol = OpenSSLWrapper.PROTOCOL;
+        }
+        if (SSLWrapperRegistry.getInstance(protocol) == null) {
+            throw new RuntimeException("Backend SSL protocol " + configuredProtocol + " is not available, please check SSL configuration and dependencies");
+        }
+        LOGGER.info("backend ssl handshake protocol selected: {}", configuredProtocol);
+        return protocol;
     }
 
     private void sendAuthPacket(byte packetId) throws NoSuchAlgorithmException {

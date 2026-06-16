@@ -154,6 +154,7 @@ public final class SystemParams {
         readOnlyParams.add(new ParamInfo("enableConnectionAssociateThread", ConnectionAssociateThreadManager.getInstance().isEnable() ? "1" : "0", "Whether to open frontend connection and backend connection are associated with threads. The default value is 1."));
         readOnlyParams.add(new ParamInfo("isSupportFrontSSL", SystemConfig.getInstance().isSupportFrontSSL() + "", "isSupportFrontSSL in configuration"));
         readOnlyParams.add(new ParamInfo("isSupportBackSSL", SystemConfig.getInstance().isSupportBackSSL() + "", "isSupportBackSSL in configuration"));
+        readOnlyParams.add(new ParamInfo("backSSLProtocol", SystemConfig.getInstance().getBackSSLProtocol(), "Backend SSL protocol for outbound MySQL SSL handshake, optional OPENSSL/GMSSL, default OPENSSL"));
         readOnlyParams.add(new ParamInfo("getBackendMode", SystemConfig.getInstance().getBackendMode() + "", "getBackendMode in configuration"));
         readOnlyParams.add(new ParamInfo("isSupportOpenSSL", (SSLWrapperRegistry.getInstance(OpenSSLWrapper.PROTOCOL) != null) + "", "Whether OpenSSL is actually supported"));
         readOnlyParams.add(new ParamInfo("serverCertificateKeyStoreUrl", SystemConfig.getInstance().getServerCertificateKeyStoreUrl() + "", "Service certificate required of OpenSSL"));

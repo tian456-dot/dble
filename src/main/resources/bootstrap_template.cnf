@@ -221,6 +221,8 @@
 #-DgmsslRcaPem=
 #-DgmsslOcaPem=
 #-DsupportSSL=
+# backend SSL protocol for dble -> MySQL when supportBackSSL=true, optional OPENSSL/GMSSL
+-DbackSSLProtocol=OPENSSL
 
 #local read
 #-Ddistrict=

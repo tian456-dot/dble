@@ -259,6 +259,9 @@ public final class SystemConfig {
     private String gmsslOcaPem = null;
     private boolean supportFrontSSL = false;
     private boolean supportBackSSL = false;
+    public static final String BACK_SSL_PROTOCOL_OPENSSL = "OPENSSL";
+    public static final String BACK_SSL_PROTOCOL_GMSSL = "GMSSL";
+    private String backSSLProtocol = BACK_SSL_PROTOCOL_OPENSSL;
 
     private BackendMode backendMode = BackendMode.MYSQL;
     private int enableAsyncRelease = 1;
@@ -1881,6 +1884,24 @@ public final class SystemConfig {
         this.supportBackSSL = supportBackSSL;
     }
 
+    public String getBackSSLProtocol() {
+        return backSSLProtocol;
+    }
+
+    @SuppressWarnings("unused")
+    public void setBackSSLProtocol(String backSSLProtocol) {
+        if (StringUtil.isBlank(backSSLProtocol)) {
+            this.backSSLProtocol = BACK_SSL_PROTOCOL_OPENSSL;
+            return;
+        }
+        final String protocol = backSSLProtocol.trim().toUpperCase();
+        if (BACK_SSL_PROTOCOL_OPENSSL.equals(protocol) || BACK_SSL_PROTOCOL_GMSSL.equals(protocol)) {
+            this.backSSLProtocol = protocol;
+        } else {
+            problemReporter.warn("Property [ backSSLProtocol ] '" + backSSLProtocol + "' in bootstrap.cnf is illegal, use " + this.backSSLProtocol + " replaced");
+        }
+    }
+
     public BackendMode getBackendMode() {
         return backendMode;
     }
@@ -2079,6 +2100,7 @@ public final class SystemConfig {
                 ", clientCertificateKeyStoreUrl=" + clientCertificateKeyStoreUrl +
                 ", clientCertificateKeyStorePwd=" + clientCertificateKeyStorePwd +
                 ", supportBackSSL=" + supportBackSSL +
+                ", backSSLProtocol=" + backSSLProtocol +
                 ", trustCertificateKeyStoreUrl=" + trustCertificateKeyStoreUrl +
                 ", trustCertificateKeyStorePwd=" + trustCertificateKeyStorePwd +
                 ", gmsslBothPfx=" + gmsslBothPfx +

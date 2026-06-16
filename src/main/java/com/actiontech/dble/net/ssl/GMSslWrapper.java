@@ -8,7 +8,6 @@ package com.actiontech.dble.net.ssl;
 import com.actiontech.dble.config.model.SystemConfig;
 import com.actiontech.dble.net.factory.TrustAllManager;
 import com.actiontech.dble.util.StringUtil;
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,6 +120,9 @@ public class GMSslWrapper implements IOpenSSLWrapper {
 
     @Override
     public SSLEngine createClientSSLEngine() {
-        throw new NotImplementedException();
+        SSLEngine engine = context.createSSLEngine();
+        engine.setUseClientMode(true);
+        engine.setEnabledProtocols("GMSSLv1.1".split(","));
+        return engine;
     }
 }
